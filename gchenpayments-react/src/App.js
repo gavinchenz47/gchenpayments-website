@@ -12,9 +12,11 @@ import TrustBadges from './components/TrustBadges';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import useScrollAnimations from './components/ScrollAnimations';
+import useAnalytics from './hooks/useAnalytics';
 
 function App() {
   useScrollAnimations();
+  useAnalytics();
   
   useEffect(() => {
     // Smooth scrolling for navigation links
