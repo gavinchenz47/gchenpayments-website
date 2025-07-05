@@ -9,16 +9,19 @@ const useAnalytics = () => {
         const buttonText = button.textContent?.trim() || 'Unknown';
         const buttonId = button.id || 'no-id';
         const buttonClass = button.className || 'no-class';
+        const section = button.closest('section')?.id || 'unknown';
         
-        // Send to Vercel Analytics
-        if (window.va) {
-          window.va('track', 'Button Click', {
-            buttonText,
-            buttonId,
-            buttonClass,
-            timestamp: new Date().toISOString(),
-            url: window.location.href,
-            section: button.closest('section')?.id || 'unknown'
+        // Send to Google Analytics
+        if (window.gtag) {
+          window.gtag('event', 'click', {
+            event_category: 'Button',
+            event_label: buttonText,
+            custom_map: {
+              button_id: buttonId,
+              button_class: buttonClass,
+              section: section,
+              page_url: window.location.href
+            }
           });
         }
         
@@ -26,7 +29,7 @@ const useAnalytics = () => {
           text: buttonText,
           id: buttonId,
           class: buttonClass,
-          section: button.closest('section')?.id || 'unknown'
+          section: section
         });
       }
     };
@@ -47,10 +50,11 @@ const useAnalytics = () => {
         maxScrollDepth = scrollPercent;
         
         // Send scroll milestones
-        if (maxScrollDepth % 25 === 0 && window.va) {
-          window.va('track', 'Scroll Depth', {
-            percentage: maxScrollDepth,
-            timestamp: new Date().toISOString()
+        if (maxScrollDepth % 25 === 0 && window.gtag) {
+          window.gtag('event', 'scroll', {
+            event_category: 'Engagement',
+            event_label: `${maxScrollDepth}%`,
+            value: maxScrollDepth
           });
         }
       }
@@ -76,11 +80,11 @@ const useAnalytics = () => {
           const timeSpent = Date.now() - sectionStartTime;
           sectionTimeTracking[currentSection] = (sectionTimeTracking[currentSection] || 0) + timeSpent;
           
-          if (window.va && timeSpent > 1000) { // Only track if spent more than 1 second
-            window.va('track', 'Section Time', {
-              section: currentSection,
-              timeSpent: Math.round(timeSpent / 1000),
-              timestamp: new Date().toISOString()
+          if (window.gtag && timeSpent > 1000) { // Only track if spent more than 1 second
+            window.gtag('event', 'timing_complete', {
+              event_category: 'Section Engagement',
+              event_label: currentSection,
+              value: Math.round(timeSpent / 1000)
             });
           }
         }
@@ -97,10 +101,10 @@ const useAnalytics = () => {
     const handleMouseMove = () => {
       if (isIdle) {
         isIdle = false;
-        if (window.va) {
-          window.va('track', 'User Activity', {
-            action: 'resumed',
-            timestamp: new Date().toISOString()
+        if (window.gtag) {
+          window.gtag('event', 'user_engagement', {
+            event_category: 'User Activity',
+            event_label: 'resumed'
           });
         }
       }
@@ -108,10 +112,10 @@ const useAnalytics = () => {
       clearTimeout(mouseIdleTimer);
       mouseIdleTimer = setTimeout(() => {
         isIdle = true;
-        if (window.va) {
-          window.va('track', 'User Activity', {
-            action: 'idle',
-            timestamp: new Date().toISOString()
+        if (window.gtag) {
+          window.gtag('event', 'user_engagement', {
+            event_category: 'User Activity',
+            event_label: 'idle'
           });
         }
       }, 30000); // 30 seconds idle time
@@ -119,29 +123,29 @@ const useAnalytics = () => {
 
     // Track page visibility changes
     const handleVisibilityChange = () => {
-      if (window.va) {
-        window.va('track', 'Page Visibility', {
-          visible: !document.hidden,
-          timestamp: new Date().toISOString()
+      if (window.gtag) {
+        window.gtag('event', 'page_view', {
+          event_category: 'Page Visibility',
+          event_label: document.hidden ? 'hidden' : 'visible'
         });
       }
     };
 
     // Track window focus/blur
     const handleWindowFocus = () => {
-      if (window.va) {
-        window.va('track', 'Window Focus', {
-          focused: true,
-          timestamp: new Date().toISOString()
+      if (window.gtag) {
+        window.gtag('event', 'page_view', {
+          event_category: 'Window Focus',
+          event_label: 'focused'
         });
       }
     };
 
     const handleWindowBlur = () => {
-      if (window.va) {
-        window.va('track', 'Window Focus', {
-          focused: false,
-          timestamp: new Date().toISOString()
+      if (window.gtag) {
+        window.gtag('event', 'page_view', {
+          event_category: 'Window Focus',
+          event_label: 'blurred'
         });
       }
     };
